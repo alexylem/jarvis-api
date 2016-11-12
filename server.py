@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
-import argparse, json, os
-from subprocess import check_output
+import argparse # manage program arguments
+import json # read input json
+import os # build path
+import socket # port in use exception
+import sys # exit (1)
+import signal # catch kill
+from subprocess import check_output # run sell commands
 
 class Jarvis():
     def __init__(self):
@@ -21,6 +26,10 @@ class Jarvis():
     def handle_order (self, order):
         return self._exec (["-x", order])
 
+def proper_exit (signum, frame):
+    print 'Stopping HTTP server'
+    http_server.server_close()
+    sys.exit(0)
 
 class RESTRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -60,11 +69,14 @@ if __name__ == "__main__":
     
     jarvis = Jarvis ()
     server_address = ('', args.port)
-    http_server = HTTPServer(server_address, RESTRequestHandler)
     try:
+        http_server = HTTPServer(server_address, RESTRequestHandler)
+        for sig in [signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT]:
+            signal.signal(sig, proper_exit)
         http_server.serve_forever()
+    except socket.error, msg:
+        print 'ERROR: ', msg
+        sys.exit(1)
     except KeyboardInterrupt:
         print # new line
         pass
-    print 'Stopping HTTP server'
-    http_server.server_close()
