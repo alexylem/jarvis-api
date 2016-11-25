@@ -45,6 +45,19 @@ You can easily extract the answer from the `JSON`, ex using `jq`:
 $> curl -s -d '{"order":"meteo","mute":"true"}' http://192.168.1.20:8080 | jq -r '.[1].Jarvis'
 Ciel plutôt dégagé. Minimales : 3 degrés.
 ```
+To retrieve the user commands
+```
+$> curl -s -d '{"action":"get_commands"}' http://192.168.1.20:8080
+*MERCI*==say "De rien"
+*AIDE*==jv_display_commands
+*COMMENT*APPELLE*==say "Je m'appelle $trigger"
+[...]
+```
+To replace by a new set of commands (replace all)
+```
+$> curl -s -d '{"action":"set_commands","commands":"*MERCI*==say \"De rien\"\n*AIDE*==..."}' http://192.168.1.20:8080
+{"error":false}
+```
 
 ## Author
 [Alex](https://github.com/alexylem)
