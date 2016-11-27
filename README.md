@@ -58,6 +58,16 @@ To replace by a new set of commands (replace all)
 $> curl -s -d '{"action":"set_commands","commands":"*MERCI*==say \"De rien\"\n*AIDE*==..."}' http://192.168.1.20:8080
 {"error":false}
 ```
+To retrieve the user settings
+```
+$> curl -s -d '{"action":"get_config"}' http://192.168.1.20:8080
+{"username": "Alex", "version": "16.11.20", [...] }
+```
+To change settings (replace all)
+```
+$> curl -s -d '{"action":"set_config","config":"{\"username\":\"Alexylem\", [...]}"}' http://192.168.1.20:8080
+{"error":false}
+```
 
 ## Author
 [Alex](https://github.com/alexylem)

@@ -23,6 +23,21 @@ class Jarvis():
             flags.append ("-v")
         return check_output(self.program + flags + args)
     
+    def get_config (self):
+        config={}
+        for config_filename in os.listdir  ('config'):
+            with open (os.path.join ('config', config_filename)) as config_file:
+                config[config_filename]=config_file.read ().rstrip ()
+        return config
+    
+    def set_config (self, config):
+        for config_filename in os.listdir  ('config'):
+            with open (os.path.join ('config', config_filename), 'w') as config_file:
+                value=config[config_filename]
+                if isinstance (value, bool):
+                    value="true" if value else "false" # to string would give "True"
+                config_file.write (value.encode('utf-8')+'\n')
+    
     def say (self, phrase):
         return self._exec (["-s", phrase])
     
@@ -30,14 +45,13 @@ class Jarvis():
         return self._exec (["-x", order])
     
     def get_commands (self):
-        with open('jarvis-commands', 'r') as the_file:
-            return json.dumps ({ 'commands' : the_file.read() })
+        with open('jarvis-commands') as the_file:
+            return { 'commands' : the_file.read() }
     
     def set_commands (sef, commands):
         commands=commands.rstrip()+'\n' # add new line end of file if missing
         with open ('jarvis-commands', 'w') as the_file:
             the_file.write (commands.encode('utf-8'))
-            return json.dumps ({'error':False}) # mandatory or JSON unexpected char N (Null)
 
 def proper_exit (signum, frame):
     print 'Stopping HTTP server'
@@ -57,36 +71,45 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
         post_data = self.rfile.read(content_length) # <--- Gets the data itself
+        response={"error":False}
         try:
             data = json.loads(post_data)
-        except ValueError, e:
-            self.send_response(400)
-            self.send_header("Content-type", "text/plain")
-            self.end_headers()
-            self.wfile.write("Bad JSON format\n")
-            pass
-        else:
-            self.send_response(200)
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
             jarvis.mute_mode = ("mute" in data) and (data ["mute"])
             jarvis.verbose = ("verbose" in data) and (data ["verbose"])
             if "action" in data:
                 action = data ["action"]
                 if action == "get_commands":
-                    self.wfile.write( jarvis.get_commands () )
+                    response=jarvis.get_commands ()
                 elif action == "set_commands":
                     if "commands" in data:
-                        self.wfile.write(jarvis.set_commands (data ["commands"]))
+                        jarvis.set_commands (data ["commands"])
                     else:
-                        self.wfile.write(json.dumps ({ "error":"missing commands" }))
+                        raise ValueError ("Missing commands parameter")
+                elif action == "get_config":
+                    response=jarvis.get_config ()
+                elif action == "set_config":
+                    jarvis.set_config (data ["config"])
+                else:
+                    raise ValueError ("Unsupported action")
             elif "order" in data:
-                self.wfile.write( jarvis.handle_order (data ["order"]) )
+                response=jarvis.handle_order (data ["order"])
             elif "say" in data:
-                self.wfile.write( jarvis.say (data ["say"]) )
+                response=jarvis.say (data ["say"])
             else:
-                self.wfile.write ("Don't know what to do")
+                raise ValueError ("Don't know what to do")
+            self.send_response(200)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps (response))
+            
+        except Exception as e:
+            self.send_response(400)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            self.wfile.write(json.dumps ({"error":e}))
+            raise
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Jarvis HTTP RestAPI Server')
