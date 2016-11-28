@@ -108,8 +108,9 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
             self.send_header("Access-Control-Allow-Origin", "*")
             self.send_header("Content-type", "application/json")
             self.end_headers()
-            self.wfile.write(json.dumps ({"error":e}))
-            raise
+            print "ERROR:", e
+            self.wfile.write(json.dumps ({"error":str(e)}))
+            pass
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Jarvis HTTP RestAPI Server')
