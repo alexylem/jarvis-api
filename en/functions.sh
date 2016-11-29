@@ -14,7 +14,7 @@ jv_pg_api_myip () {
 jv_pg_api_start () {
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     jv_debug "Starting RestAPI server on http://$(jv_pg_api_myip):$jv_pg_api_port"
-    python $DIR/../server.py --port $jv_pg_api_port &
+    nohup python $DIR/../server.py --port $jv_pg_api_port &
 }
 
 # do not start http server if just executing an order
