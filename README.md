@@ -25,29 +25,29 @@ Now you can control Jarvis from another device.
 
 Make Jarvis say something:
 ```
-$> curl -d '{"say":"Hello World"}' http://192.168.1.20:8080
+$> curl "http://192.168.1.20:8080?say=Hello World"
 [{"Jarvis":"Hello World"}]
 ```
 In the above example, Jarvis will say "Hello World" out loud.
 
 You can also send orders to Jarvis:
 ```
-$> curl -d '{"order":"bonjour"}' http://192.168.1.20:8080
+$> curl "http://192.168.1.20:8080?order=bonjour"
 [{"Jarvis":"Bonjour Alex"}]
 ```
 To prevent the remote Jarvis from speaking, use the mute option:
 ```
-$> curl -d '{"order":"meteo","mute":"true"}' http://192.168.1.20:8080
+$> curl "http://192.168.1.20:8080?order=meteo&mute=true"
 [{"Jarvis":"je regarde..."},{"Jarvis":"Ciel plutôt dégagé. Minimales : 4 degrés."}]
 ```
 You can easily extract the answer from the `JSON`, ex using `jq`:
 ```
-$> curl -s -d '{"order":"meteo","mute":"true"}' http://192.168.1.20:8080 | jq -r '.[1].Jarvis'
+$> curl "http://192.168.1.20:8080?order=meteo&mute=true" | jq -r '.[1].Jarvis'
 Ciel plutôt dégagé. Minimales : 3 degrés.
 ```
 To retrieve the user commands
 ```
-$> curl -s -d '{"action":"get_commands"}' http://192.168.1.20:8080
+$> curl "http://192.168.1.20:8080?action=get_commands"
 *MERCI*==say "De rien"
 *AIDE*==jv_display_commands
 *COMMENT*APPELLE*==say "Je m'appelle $trigger"
@@ -55,12 +55,12 @@ $> curl -s -d '{"action":"get_commands"}' http://192.168.1.20:8080
 ```
 To replace by a new set of commands (replace all)
 ```
-$> curl -s -d '{"action":"set_commands","commands":"*MERCI*==say \"De rien\"\n*AIDE*==..."}' http://192.168.1.20:8080
+$> curl -s -d '{"action":"set_commands","commands":"*MERCI*==say \"De rien\"\n*AIDE*==..."}'
 {"error":false}
 ```
 To retrieve the user settings
 ```
-$> curl -s -d '{"action":"get_config"}' http://192.168.1.20:8080
+$> curl "http://192.168.1.20:8080?action=get_config"
 {"username": "Alex", "version": "16.11.20", [...] }
 ```
 To change settings (replace all)

@@ -6,6 +6,7 @@ import os # build path
 import socket # port in use exception
 import sys # exit (1)
 import signal # catch kill
+import urlparse # parse url parameters
 from subprocess import check_output # run sell commands
 
 class Jarvis():
@@ -39,10 +40,10 @@ class Jarvis():
                 config_file.write (value.encode('utf-8')+'\n')
     
     def say (self, phrase):
-        return self._exec (["-s", phrase])
+        return json.loads(self._exec (["-s", phrase]))
     
     def handle_order (self, order):
-        return self._exec (["-x", order])
+        return json.loads(self._exec (["-x", order]))
     
     def get_commands (self):
         with open('jarvis-commands') as the_file:
@@ -58,13 +59,51 @@ def proper_exit (signum, frame):
     http_server.server_close()
     sys.exit(0)
 
+def handle_request (self, data):
+    jarvis.mute_mode = ("mute" in data) and (data ["mute"])
+    jarvis.verbose = ("verbose" in data) and (data ["verbose"])
+    if "action" in data:
+        action = data ["action"]
+        if action == "get_commands":
+            response=jarvis.get_commands ()
+        elif action == "set_commands":
+            if "commands" in data:
+                jarvis.set_commands (data ["commands"])
+            else:
+                raise ValueError ("Missing commands parameter")
+        elif action == "get_config":
+            response=jarvis.get_config ()
+        elif action == "set_config":
+            jarvis.set_config (data ["config"])
+        else:
+            raise ValueError ("Unsupported action")
+    elif "order" in data:
+        response=jarvis.handle_order (data ["order"])
+    elif "say" in data:
+        response=jarvis.say (data ["say"])
+    else:
+        raise ValueError ("Don't know what to do")
+    self.send_response(200)
+    self.send_header("Access-Control-Allow-Origin", "*")
+    self.send_header("Content-type", "application/json")
+    self.end_headers()
+    self.wfile.write(json.dumps (response))
+
 class RESTRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write('Usage: curl -d \'{"order":"hello"}\' localhost:port')
-
+        url = urlparse.urlparse(self.path)
+        data = dict(urlparse.parse_qsl(url.query))
+        try:
+            handle_request (self, data)
+        except Exception as e:
+            self.send_response(400)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-type", "application/json")
+            self.end_headers()
+            print "ERROR:", e
+            self.wfile.write(json.dumps ({"error":str(e)}))
+            pass
+        
     def do_HEAD(self):
         self._set_headers()
         
@@ -74,35 +113,7 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
         response={"error":False}
         try:
             data = json.loads(post_data)
-            jarvis.mute_mode = ("mute" in data) and (data ["mute"])
-            jarvis.verbose = ("verbose" in data) and (data ["verbose"])
-            if "action" in data:
-                action = data ["action"]
-                if action == "get_commands":
-                    response=jarvis.get_commands ()
-                elif action == "set_commands":
-                    if "commands" in data:
-                        jarvis.set_commands (data ["commands"])
-                    else:
-                        raise ValueError ("Missing commands parameter")
-                elif action == "get_config":
-                    response=jarvis.get_config ()
-                elif action == "set_config":
-                    jarvis.set_config (data ["config"])
-                else:
-                    raise ValueError ("Unsupported action")
-            elif "order" in data:
-                response=jarvis.handle_order (data ["order"])
-            elif "say" in data:
-                response=jarvis.say (data ["say"])
-            else:
-                raise ValueError ("Don't know what to do")
-            self.send_response(200)
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Content-type", "application/json")
-            self.end_headers()
-            self.wfile.write(json.dumps (response))
-            
+            handle_request (self, data)
         except Exception as e:
             self.send_response(400)
             self.send_header("Access-Control-Allow-Origin", "*")
