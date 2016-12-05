@@ -7,7 +7,7 @@ import socket # port in use exception
 import sys # exit (1)
 import signal # catch kill
 import urlparse # parse url parameters
-from subprocess import check_output # run sell commands
+from subprocess import check_output, call # run sell commands
 
 class Jarvis():
     def __init__(self):
@@ -53,6 +53,16 @@ class Jarvis():
         commands=commands.rstrip()+'\n' # add new line end of file if missing
         with open ('jarvis-commands', 'w') as the_file:
             the_file.write (commands.encode('utf-8'))
+    
+    def get_events (self):
+        with open('jarvis-events') as the_file:
+            return { 'events' : the_file.read() }
+    
+    def set_events (sef, events):
+        events=events.rstrip()+'\n' # add new line end of file if missing
+        with open ('jarvis-events', 'w') as the_file:
+            the_file.write (events.encode('utf-8'))
+        call(['crontab', 'jarvis-events', '-i'])
 
 def proper_exit (signum, frame):
     print 'Stopping HTTP server'
@@ -62,6 +72,7 @@ def proper_exit (signum, frame):
 def handle_request (self, data):
     jarvis.mute_mode = ("mute" in data) and (data ["mute"])
     jarvis.verbose = ("verbose" in data) and (data ["verbose"])
+    response={"status":"ok"}
     if "action" in data:
         action = data ["action"]
         if action == "get_commands":
@@ -71,18 +82,25 @@ def handle_request (self, data):
                 jarvis.set_commands (data ["commands"])
             else:
                 raise ValueError ("Missing commands parameter")
+        elif action == "get_events":
+            response=jarvis.get_events ()
+        elif action == "set_events":
+            if "events" in data:
+                jarvis.set_events (data ["events"])
+            else:
+                raise ValueError ("Missing events parameter")
         elif action == "get_config":
             response=jarvis.get_config ()
         elif action == "set_config":
             jarvis.set_config (data ["config"])
         else:
-            raise ValueError ("Unsupported action")
+            raise ValueError ("Unsupported action: "+action)
     elif "order" in data:
         response=jarvis.handle_order (data ["order"])
     elif "say" in data:
         response=jarvis.say (data ["say"])
     else:
-        raise ValueError ("Don't know what to do")
+        raise ValueError ("Don't know what to do with: "+ json.dumps (data))
     self.send_response(200)
     self.send_header("Access-Control-Allow-Origin", "*")
     self.send_header("Content-type", "application/json")

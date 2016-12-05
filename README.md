@@ -56,7 +56,19 @@ $> curl "http://192.168.1.20:8080?action=get_commands"
 To replace by a new set of commands (replace all)
 ```
 $> curl -s -d '{"action":"set_commands","commands":"*MERCI*==say \"De rien\"\n*AIDE*==..."}'
-{"error":false}
+{"status":"ok"}
+```
+To retrieve the user events
+```
+$> curl "http://192.168.1.20:8080?action=get_events"
+2       9       *       *       6,0     ~/jarvis/jarvis.sh -x "meteo"
+0       7-20    *       *       1-5     ~/jarvis/jarvis.sh -x "quelle heure est-il"
+[...]
+```
+To replace by a new set of events (replace all)
+```
+$> curl -s -d '{"action":"set_commands","commands":"2  9  *  *  6,0..."}'
+{"status":"ok"}
 ```
 To retrieve the user settings
 ```
@@ -66,7 +78,7 @@ $> curl "http://192.168.1.20:8080?action=get_config"
 To change settings (replace all)
 ```
 $> curl -s -d '{"action":"set_config","config":"{\"username\":\"Alexylem\", [...]}"}' http://192.168.1.20:8080
-{"error":false}
+{"status":"ok"}
 ```
 
 ## Author
