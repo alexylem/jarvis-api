@@ -5,6 +5,7 @@ import json # read input json
 import os # build path
 import socket # port in use exception
 import sys # exit (1)
+#import ssl # https
 import signal # catch kill
 import urlparse # parse url parameters
 from subprocess import check_output, call # run sell commands
@@ -144,12 +145,14 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Jarvis HTTP RestAPI Server')
     parser.add_argument('-p', '--port', help='Listening port (default: 8080)', type=int, default=8080)
+    #parser.add_argument('-s', '--ssl', help='Use SSL', action='store_true')
     args = parser.parse_args()
     
     jarvis = Jarvis ()
-    server_address = ('', args.port)
     try:
-        http_server = HTTPServer(server_address, RESTRequestHandler)
+        http_server = HTTPServer(('', args.port), RESTRequestHandler)
+        #if args.ssl:
+        #    http_server.socket = ssl.wrap_socket (http_server.socket, certfile='./server.pem', server_side=True)
         for sig in [signal.SIGTERM, signal.SIGINT, signal.SIGHUP, signal.SIGQUIT]:
             signal.signal(sig, proper_exit)
         http_server.serve_forever()
