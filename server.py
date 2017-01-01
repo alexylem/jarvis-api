@@ -71,6 +71,15 @@ def proper_exit (signum, frame):
     sys.exit(0)
 
 def handle_request (self, data):
+    # check api key if defined by user
+    if args.key:
+        if not ("key" in data):
+            raise ValueError ("Missing API Key")
+        elif (data["key"] == ""):
+            raise ValueError ("Empty API Key")
+        elif (data["key"] != args.key):
+            raise ValueError ("Invalid API Key")
+    
     jarvis.mute_mode = ("mute" in data) and (data ["mute"])
     jarvis.verbose = ("verbose" in data) and (data ["verbose"])
     response={"status":"ok"}
@@ -109,6 +118,9 @@ def handle_request (self, data):
     self.wfile.write(json.dumps (response))
 
 class RESTRequestHandler(BaseHTTPRequestHandler):
+    def do_HEAD(self):
+        self._set_headers()
+    
     def do_GET(self):
         url = urlparse.urlparse(self.path)
         data = dict(urlparse.parse_qsl(url.query))
@@ -123,13 +135,9 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(json.dumps ({"error":str(e)}))
             pass
         
-    def do_HEAD(self):
-        self._set_headers()
-        
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
         post_data = self.rfile.read(content_length) # <--- Gets the data itself
-        response={"error":False}
         try:
             data = json.loads(post_data)
             handle_request (self, data)
@@ -144,9 +152,12 @@ class RESTRequestHandler(BaseHTTPRequestHandler):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Jarvis HTTP RestAPI Server')
+    parser.add_argument('-k', '--key', help='Optional secret key')
     parser.add_argument('-p', '--port', help='Listening port (default: 8080)', type=int, default=8080)
     #parser.add_argument('-s', '--ssl', help='Use SSL', action='store_true')
     args = parser.parse_args()
+    
+    print "key=", args.key
     
     jarvis = Jarvis ()
     try:

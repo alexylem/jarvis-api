@@ -45,7 +45,12 @@ You can easily extract the answer from the `JSON`, ex using `jq`:
 $> curl "http://192.168.1.20:8080?order=meteo&mute=true" | jq -r '.[1].Jarvis'
 Ciel plutôt dégagé. Minimales : 3 degrés.
 ```
-To retrieve the user commands
+If you have defined an API Key for security, you have to pass it like this:
+```
+$> curl "http://192.168.1.20:8080?say=I am secured&key=12345
+[{"Jarvis":"I am secured"}]
+```
+To retrieve the user commands:
 ```
 $> curl "http://192.168.1.20:8080?action=get_commands"
 *MERCI*==say "De rien"
@@ -53,29 +58,29 @@ $> curl "http://192.168.1.20:8080?action=get_commands"
 *COMMENT*APPELLE*==say "Je m'appelle $trigger"
 [...]
 ```
-To replace by a new set of commands (replace all)
+To replace by a new set of commands (replace all):
 ```
 $> curl -s -d '{"action":"set_commands","commands":"*MERCI*==say \"De rien\"\n*AIDE*==..."}'
 {"status":"ok"}
 ```
-To retrieve the user events
+To retrieve the user events:
 ```
 $> curl "http://192.168.1.20:8080?action=get_events"
 2       9       *       *       6,0     ~/jarvis/jarvis.sh -x "meteo"
 0       7-20    *       *       1-5     ~/jarvis/jarvis.sh -x "quelle heure est-il"
 [...]
 ```
-To replace by a new set of events (replace all)
+To replace by a new set of events (replace all):
 ```
 $> curl -s -d '{"action":"set_commands","commands":"2  9  *  *  6,0..."}'
 {"status":"ok"}
 ```
-To retrieve the user settings
+To retrieve the user settings:
 ```
 $> curl "http://192.168.1.20:8080?action=get_config"
 {"username": "Alex", "version": "16.11.20", [...] }
 ```
-To change settings (replace all)
+To change settings (replace all):
 ```
 $> curl -s -d '{"action":"set_config","config":"{\"username\":\"Alexylem\", [...]}"}' http://192.168.1.20:8080
 {"status":"ok"}
