@@ -157,8 +157,6 @@ if __name__ == "__main__":
     #parser.add_argument('-s', '--ssl', help='Use SSL', action='store_true')
     args = parser.parse_args()
     
-    print "key=", args.key
-    
     jarvis = Jarvis ()
     try:
         http_server = HTTPServer(('', args.port), RESTRequestHandler)
