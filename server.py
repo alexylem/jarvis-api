@@ -8,7 +8,7 @@ import sys # exit (1)
 #import ssl # https
 import signal # catch kill
 import urlparse # parse url parameters
-from subprocess import check_output, call # run sell commands
+from subprocess import check_output, call # run shell commands
 
 class Jarvis():
     def __init__(self):
@@ -46,6 +46,9 @@ class Jarvis():
     def handle_order (self, order):
         return json.loads(self._exec (["-x", order]))
     
+    def listen (self):
+        return json.loads(self._exec (["-l"]))
+    
     def get_commands (self):
         with open('jarvis-commands') as the_file:
             return { 'commands' : the_file.read() }
@@ -80,35 +83,37 @@ def handle_request (self, data):
         elif (data["key"] != args.key):
             raise ValueError ("Invalid API Key")
     
-    self.mute_mode = ("mute" in data) and (data ["mute"])
-    self.verbose = ("verbose" in data) and (data ["verbose"])
+    jarvis.mute_mode = ("mute" in data) and (data ["mute"])
+    jarvis.verbose = ("verbose" in data) and (data ["verbose"])
     response={"status":"ok"}
     if "action" in data:
         action = data ["action"]
-        if action == "get_commands":
-            response=self.get_commands ()
+        if action == "listen":
+            response=jarvis.listen ()
+        elif action == "get_commands":
+            response=jarvis.get_commands ()
         elif action == "set_commands":
             if "commands" in data:
-                self.set_commands (data ["commands"])
+                jarvis.set_commands (data ["commands"])
             else:
                 raise ValueError ("Missing commands parameter")
         elif action == "get_events":
-            response=self.get_events ()
+            response=jarvis.get_events ()
         elif action == "set_events":
             if "events" in data:
-                self.set_events (data ["events"])
+                jarvis.set_events (data ["events"])
             else:
                 raise ValueError ("Missing events parameter")
         elif action == "get_config":
-            response=self.get_config ()
+            response=jarvis.get_config ()
         elif action == "set_config":
-            self.set_config (data ["config"])
+            jarvis.set_config (data ["config"])
         else:
             raise ValueError ("Unsupported action: "+action)
     elif "order" in data:
-        response=self.handle_order (data ["order"])
+        response=jarvis.handle_order (data ["order"])
     elif "say" in data:
-        response=self.say (data ["say"])
+        response=jarvis.say (data ["say"])
     else:
         raise ValueError ("Don't know what to do with: "+ json.dumps (data))
     self.send_response(200)
