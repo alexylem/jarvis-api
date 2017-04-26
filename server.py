@@ -80,35 +80,35 @@ def handle_request (self, data):
         elif (data["key"] != args.key):
             raise ValueError ("Invalid API Key")
     
-    jarvis.mute_mode = ("mute" in data) and (data ["mute"])
-    jarvis.verbose = ("verbose" in data) and (data ["verbose"])
+    self.mute_mode = ("mute" in data) and (data ["mute"])
+    self.verbose = ("verbose" in data) and (data ["verbose"])
     response={"status":"ok"}
     if "action" in data:
         action = data ["action"]
         if action == "get_commands":
-            response=jarvis.get_commands ()
+            response=self.get_commands ()
         elif action == "set_commands":
             if "commands" in data:
-                jarvis.set_commands (data ["commands"])
+                self.set_commands (data ["commands"])
             else:
                 raise ValueError ("Missing commands parameter")
         elif action == "get_events":
-            response=jarvis.get_events ()
+            response=self.get_events ()
         elif action == "set_events":
             if "events" in data:
-                jarvis.set_events (data ["events"])
+                self.set_events (data ["events"])
             else:
                 raise ValueError ("Missing events parameter")
         elif action == "get_config":
-            response=jarvis.get_config ()
+            response=self.get_config ()
         elif action == "set_config":
-            jarvis.set_config (data ["config"])
+            self.set_config (data ["config"])
         else:
             raise ValueError ("Unsupported action: "+action)
     elif "order" in data:
-        response=jarvis.handle_order (data ["order"])
+        response=self.handle_order (data ["order"])
     elif "say" in data:
-        response=jarvis.say (data ["say"])
+        response=self.say (data ["say"])
     else:
         raise ValueError ("Don't know what to do with: "+ json.dumps (data))
     self.send_response(200)
