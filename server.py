@@ -41,10 +41,10 @@ class Jarvis():
                 config_file.write (value.encode('utf-8')+'\n')
     
     def say (self, phrase):
-        return json.loads(self._exec (["-s", phrase]))
+        return json.loads(self._exec (["-s", phrase]), strict=False)
     
     def handle_order (self, order):
-        return json.loads(self._exec (["-x", order]))
+        return json.loads(self._exec (["-x", order]), strict=False)
     
     def listen (self):
         return json.loads(self._exec (["-l"]))
