@@ -33,14 +33,14 @@ In the above example, Jarvis will say "Hello World" out loud.
 From a terminal, you can use `curl`:
 ```
 $> curl "http://192.168.1.20:8080?say=Hello%20World"
-[{"Jarvis":"Hello World"}]
+[{"answer":"Hello World"}]
 ```
 To have `curl` encoding the url for you, use two arguments:
 * `-G` to send data with GET method
 * `--data-urlencode` to encode special characters such as spaces in parameters
 ```
 $> curl -G "http://192.168.1.20:8080" --data-urlencode "say=Hello World"
-[{"Jarvis":"Hello World"}]
+[{"answer":"Hello World"}]
 ```
 
 You can make Jarvis listening directly for a command by simulating a hotword recognition:
@@ -52,12 +52,12 @@ $> curl "http://192.168.1.20:8080?action=listen"
 You can also send orders to Jarvis:
 ```
 $> curl -G "http://192.168.1.20:8080" --data-urlencode "order=bonjour Jarvis"
-[{"Jarvis":"Bonjour Alex"}]
+[{"answer":"Bonjour Alex"}]
 ```
 To prevent the remote Jarvis from speaking, use the mute option:
 ```
 $> curl -G "http://192.168.1.20:8080" --data-urlencode "order=météo" --data-urlencode "mute=true"
-[{"Jarvis":"je regarde..."},{"Jarvis":"Ciel plutôt dégagé. Minimales : 4 degrés."}]
+[{"answer":"je regarde..."},{"answer":"Ciel plutôt dégagé. Minimales : 4 degrés."}]
 ```
 You can easily extract the answer from the `JSON`, ex using `jq`:
 ```
@@ -67,7 +67,7 @@ Ciel plutôt dégagé. Minimales : 3 degrés.
 If you have defined an API Key for security, you have to pass it like this:
 ```
 $> curl -G "http://192.168.1.20:8080" --data-urlencode "say=I am secured" --data-urlencode "key=12345"
-[{"Jarvis":"I am secured"}]
+[{"answer":"I am secured"}]
 ```
 To retrieve the user commands:
 ```
