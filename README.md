@@ -28,6 +28,7 @@ From a browser, simply type in the URL to make Jarvis say something:
 http://192.168.1.20:8080?say=Hello World
 ```
 ![image](https://cloud.githubusercontent.com/assets/11017174/25438915/26d18d8a-2a9b-11e7-98b5-37e9b86ecfc8.png)
+
 In the above example, Jarvis will say "Hello World" out loud.
 
 From a terminal, you can use `curl`:

@@ -83,8 +83,13 @@ def handle_request (self, data):
         elif (data["key"] != args.key):
             raise ValueError ("Invalid API Key")
     
-    jarvis.mute_mode = ("mute" in data) and (data ["mute"])
-    jarvis.verbose = ("verbose" in data) and (data ["verbose"])
+    if "mute" in data:
+        mute=data["mute"]
+        jarvis.mute_mode=mute if isinstance(mute, bool) else (mute != "false")
+    if "verbose" in data:
+        verbose=data["verbose"]
+        jarvis.verbose=verbose if isinstance(verbose, bool) else (verbose != "false")
+    
     response={"status":"ok"}
     if "action" in data:
         action = data ["action"]
