@@ -85,10 +85,10 @@ def handle_request (self, data):
     
     if "mute" in data:
         mute=data["mute"]
-        jarvis.mute_mode=mute if isinstance(mute, bool) else (mute != "false")
+        jarvis.mute_mode=mute if isinstance(mute, bool) else (mute.lower() != "false")
     if "verbose" in data:
         verbose=data["verbose"]
-        jarvis.verbose=verbose if isinstance(verbose, bool) else (verbose != "false")
+        jarvis.verbose=verbose if isinstance(verbose, bool) else (verbose.lower() != "false")
     
     response={"status":"ok"}
     if "action" in data:

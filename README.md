@@ -16,7 +16,7 @@ There is no configuration needed, just install the plugin and start Jarvis norma
 
 ## Usage
 ```
-$> ./jarvis.sh
+$> jarvis
 Starting RestAPI server on http://192.168.1.20:8080
 Jarvis: Bonjour Alex
 ...
