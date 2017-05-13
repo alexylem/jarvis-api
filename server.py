@@ -13,7 +13,7 @@ from subprocess import check_output, call # run shell commands
 class Jarvis():
     def __init__(self):
         #self.path = os.path.dirname(os.path.realpath(__file__))
-        self.program = [os.path.join (".", "jarvis.sh"), "-j"]
+        self.program = ["jarvis", "-j"]
         self.mute_mode = False
         self.verbose = False
     
