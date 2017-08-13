@@ -10,5 +10,5 @@
 jv_pg_api_start () {
     DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
     jv_debug "Starting RestAPI server on http://$jv_ip:$jv_pg_api_port"
-    python $DIR/server.py --port $jv_pg_api_port --key "$jv_pg_api_key" & # 2>&1 | jv_add_timestamps >>$jv_dir/jarvis.log &
+    python2 $DIR/server.py --port $jv_pg_api_port --key "$jv_pg_api_key" & # 2>&1 | jv_add_timestamps >>$jv_dir/jarvis.log &
 }
